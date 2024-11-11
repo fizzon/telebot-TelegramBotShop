@@ -16,7 +16,7 @@ import json
 import hashlib
 import uuid
 
-# Initialize the bot
+# Ініціалізація бота
 bot = telebot.TeleBot('ВАШ_ТОКЕН_ТЕЛЕГРАМ_БОТА')
 admin_ids = [ВАШ_АЙДИ_ТЕЛЕГРАМА]
 
@@ -24,7 +24,7 @@ admin_ids = [ВАШ_АЙДИ_ТЕЛЕГРАМА]
 TEST_PUBLIC_KEY = 'ВАШ_ПУБЛІЧНИЙ_ТОКЕН_ОПЛАТИ'
 TEST_PRIVATE_KEY = 'ВАШ_ПРИВАТНИЙ_ТОКЕН_ОПЛАТИ'
 
-# SQLite database connection
+# SQLite підключення до бази даних
 conn = sqlite3.connect('shop_db.sqlite', check_same_thread=False)
 cursor = conn.cursor()
 
@@ -99,7 +99,7 @@ def log_event(event, user_id=None, username=None):
 def close_db():
     conn.close()
 
-# Adding items to the catalog table (only once)
+# Додавання товарів до таблиці каталогу (тільки один раз)
 def add_items_to_catalog():
     items = [
         ("smartphones", "Смартфон A", "Смартфон з потужним акумулятором", "10,000 грн",
@@ -121,12 +121,12 @@ def add_items_to_catalog():
                        items)
     conn.commit()
 
-# Add items if the catalog table is empty
+# Додавання елементів, якщо таблиця каталогу порожня
 cursor.execute("SELECT COUNT(*) FROM catalog")
 if cursor.fetchone()[0] == 0:
     add_items_to_catalog()
 
-# Function to get items by category
+# Функція отримання товарів за категоріями
 def get_items_by_category(category):
     cursor.execute("SELECT id, name, description, price, photo_url FROM catalog WHERE category = ?", (category,))
     return cursor.fetchall()
@@ -250,7 +250,7 @@ def handle_update_order_status_button(message):
 
 
 
-# Display the main catalog with subcategories
+# Відображення основного каталогу з підкатегоріями
 @bot.message_handler(commands=['catalog'])
 def show_catalog(message):
     markup = InlineKeyboardMarkup()
@@ -270,7 +270,7 @@ def add_item(message):
         bot.send_message(message.chat.id, "🔒Ця команда доступна лише адміністраторам.🔒")
 
 
-# Process category step
+# Крок категорії процесу
 def process_category_step(message):
     chat_id = message.chat.id
     category = message.text
@@ -317,7 +317,7 @@ def weather_command(message):
 
 def process_city_step(message):
     city_name = message.text
-    api_key = '07280fec99f37dca4efeb9abd36d85ef'  # Замініть на ваш реальний API-ключ
+    api_key = '07280fec99f37dca4efeb9abd36d85ef'  
     weather_data = get_weather(city_name, api_key)
     if weather_data:
         bot.send_message(message.chat.id, weather_data)
@@ -418,7 +418,7 @@ def unsubscribe_weather(message):
     else:
         bot.send_message(message.chat.id, "Ви ще не підписані на щоденну розсилку погоди.")
 
-# Command to delete an item from the catalog (only for admins)
+# Команда видалення товару з каталогу (тільки для адміністраторів)
 @bot.message_handler(commands=['delete_item'])
 def delete_item(message):
     if message.from_user.id in admin_ids:
@@ -441,12 +441,12 @@ def process_delete_step(message):
         bot.send_message(message.chat.id, "Товар із таким ID не знайдено.")
 
 
-# Get all orders from the database
+# Отримати всі замовлення з бази даних
 def get_all_orders():
     cursor.execute("SELECT * FROM orders")
     return cursor.fetchall()
 
-# View orders by the admin
+# Перегляд замовлень адміністратором
 @bot.message_handler(commands=['view_orders'])
 def admin_view_orders(message):
     user_id = message.from_user.id
@@ -526,7 +526,7 @@ def show_order_list(call):
         bot.answer_callback_query(call.id, "Немає доступних замовлень.", show_alert=True)
 
 
-# Get all orders from the database
+# Отримайте всі замовлення з бази даних
 def get_all_orders():
     cursor.execute("SELECT * FROM orders")
     return cursor.fetchall()
@@ -624,7 +624,7 @@ def confirm_order_received(call):
     bot.send_message(call.message.chat.id, f"Ваше замовлення {order_id} підтверджено як отримане.")
     logging.info(f"Користувач {call.from_user.username} (ID: {call.from_user.id}) підтвердив отримання замовлення ID: {order_id}.")
 
-# Handle subcategory selection
+# Обробка вибору підкатегорії
 @bot.callback_query_handler(func=lambda call: call.data.startswith("category_"))
 def show_subcategory(call):
     category = call.data.split("_")[1]
@@ -634,7 +634,7 @@ def show_subcategory(call):
     else:
         bot.send_message(call.message.chat.id, "Ця категорія зараз порожня.")
 
-# Display item details from a category
+# Відобразити деталі товару з категорії
 def show_item_details(message, items, index):
     item = items[index]
     message_text = f"**{item[1]}**\n\n{item[2]}\nЦіна: {item[3]}"
@@ -777,7 +777,6 @@ def checkout(user_id):
         return True
     return False
 
-# Оформлення замовлення з корзини
 # Оформлення замовлення з корзини з оплатою
 @bot.callback_query_handler(func=lambda call: call.data == "checkout_cart")
 def handle_checkout_cart(call):
@@ -942,7 +941,7 @@ def info_command(message):
     bot.send_message(message.chat.id, info_text)
     log_event("Команда /info виконана", message.from_user.id, message.from_user.username)
 
-# Update order status
+# Оновлення статусу замовлення
 @bot.message_handler(commands=['update_order'])
 def update_order_status(message):
     if message.from_user.id in admin_ids:
@@ -1070,12 +1069,12 @@ def navigate_order_items(call):
         bot.answer_callback_query(call.id, "Немає доступних замовлень або індекс виходить за межі списку.")
 
 
-# Handle back to catalog
+# Повернутися в каталог
 @bot.callback_query_handler(func=lambda call: call.data == "back_to_catalog")
 def back_to_catalog(call):
     show_catalog(call.message)
 
-# Get the category of an item
+# Отримати категорію елемента
 def get_item_category(item_id):
     cursor = conn.cursor()  # Створюємо новий курсор
     cursor.execute("SELECT category FROM catalog WHERE id = ?", (item_id,))
@@ -1084,7 +1083,7 @@ def get_item_category(item_id):
     return result[0] if result else None
 
 
-# Edit item details
+# Редагувати інформацію про товар
 def edit_item_details(message, items, index):
     item = items[index]
     message_text = f"**{item[1]}**\n\n{item[2]}\nЦіна: {item[3]}"
