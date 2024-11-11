@@ -19,6 +19,7 @@ import uuid
 # Ініціалізація бота
 bot = telebot.TeleBot('ВАШ_ТОКЕН_ТЕЛЕГРАМ_БОТА')
 admin_ids = [ВАШ_АЙДИ_ТЕЛЕГРАМА]
+weather_api_key = 'ВАШ_ТОКЕН' 
 
 # Налаштування для LiqPay
 TEST_PUBLIC_KEY = 'ВАШ_ПУБЛІЧНИЙ_ТОКЕН_ОПЛАТИ'
@@ -317,7 +318,7 @@ def weather_command(message):
 
 def process_city_step(message):
     city_name = message.text
-    api_key = '07280fec99f37dca4efeb9abd36d85ef'  
+    api_key = weather_api_key  
     weather_data = get_weather(city_name, api_key)
     if weather_data:
         bot.send_message(message.chat.id, weather_data)
